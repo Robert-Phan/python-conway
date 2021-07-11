@@ -20,13 +20,14 @@ def __neighbor_count(x: int, y: int, add_to_dead = True):
 def update():
     newlive = set()
     global live
+    global dead
     for x in live:
         if __neighbor_count(*x) == 2 or __neighbor_count(*x) == 3:
             newlive.add(x)
-            ...
     for x in dead:
         if __neighbor_count(*x, add_to_dead=False) == 3:
             newlive.add(x)
+    dead = set()
     live = newlive
 
 if __name__ == "__main__":

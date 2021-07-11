@@ -1,4 +1,4 @@
-import sys; import time
+import sys; import time; import re
 
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
@@ -6,27 +6,34 @@ from PyQt5.QtGui import *
 
 import game
 
-class Cell(QWidget):
-    def __init__(self) -> None:
-        super().__init__()
-        self.setFixedSize(15, 15)
-
 class GUI(QWidget):
 
     def __init__(self, board: set[tuple]) -> None:
         super().__init__()
-        game.live = board
+        game.live = set(board)
 
-        self.grid: QGridLayout = self.set_dimensions(40, 40)
+        self.grid: QGridLayout = self.set_dimensions(40, 36)
         self.draw()
+
+        self.label = QLabel('Type "play" to start the simulation. \
+        \nType coordinates styled {X, Y} to add/remove cell.')
+        self.label.setFont(QFont("Roboto", pointSize=10))
+        self.label.setStyleSheet("background-color: black; color: white")
+
+        self.input = QLineEdit()
+        self.input.setFont(QFont("Roboto", pointSize=10))
+        self.input.returnPressed.connect(self.process_input)
 
         layout = QVBoxLayout()
         layout.addItem(self.grid)
-        layout.addWidget(QLabel("Click any keys to start/stop"))
+        layout.addWidget(self.label)
+        layout.addWidget(self.input)
         self.setLayout(layout)
 
         self.setStyleSheet("background-color: lightgrey")
         self.setWindowTitle("Life")
+    
+
 
     def set_dimensions(self, w: int, h: int) -> QGridLayout:
         layout = QGridLayout()
@@ -53,30 +60,48 @@ class GUI(QWidget):
             x, y = cell
             x, y = x+1, y+1
             self.grid.itemAtPosition(y, x).widget().setStyleSheet("background-color:white")
+
+    def process_input(self):
+        if self.input.text() == "play" or self.input.text() == "stop":
+            self.play()
+        elif re.search(r"\d+, *\d+", self.input.text()):
+            x, y = self.input.text().split(",")
+            x, y = int(x), int(y)
+            if (x, y) in game.live:
+                game.live.remove((x, y))
+            else:
+                game.live.add((x, y))
+            self.draw()
+        elif self.input.text() == "clear":
+            game.live = set()
+            self.generations = 0
+            self.draw()
+            self.label.setText('Type "play" to start the simulation.\
+            \nType coordinates styled {X, Y} to add/remove cell.')
             ...
-        ...
 
-    # updates board every time interval
-    def timerEvent(self, a0: QTimerEvent) -> None:
-        game.update()
-        self.draw()
-        ...
+        self.input.clear()
 
-    def keyPressEvent(self, a0: QKeyEvent) -> None:
+    def play(self):
         try:
             self.killTimer(self.timer_toggled)
             del self.timer_toggled
+            self.label.setText('Type "play" to continue the simulation.\nType "clear" to clear the board.')
         except:
             self.timer_toggled = self.startTimer(150)
-
+    
+    generations = 0
+    def timerEvent(self, a0: QTimerEvent) -> None:
+        self.prev = game.live
+        game.update()
+        self.draw()
+        self.label.setText(f"Generations: {self.generations}\nType \"stop\" to stop the simulation.")
+        self.generations += 1
+    
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     life = GUI({
-        (20, 11),
-        (21, 10),
-        (22, 10),
-        (21, 11), 
-        (22, 12)
+
     })
     life.show()
     sys.exit(app.exec_())
