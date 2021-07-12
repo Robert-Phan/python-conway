@@ -1,4 +1,4 @@
-import sys; import time; import re
+import sys; import time; import re; from typing import Union
 
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
@@ -8,11 +8,12 @@ import game
 
 class GUI(QWidget):
 
-    def __init__(self, board: set[tuple]) -> None:
+    def __init__(self, board: Union[set[tuple], str]) -> None:
         super().__init__()
+        if type(board) == str: board = game.rle(board)
         game.live = set(board)
 
-        self.grid: QGridLayout = self.set_dimensions(40, 36)
+        self.grid: QGridLayout = self.set_dimensions(42, 42)
         self.draw()
 
         self.label = QLabel('Type "play" to start the simulation. \
@@ -79,7 +80,10 @@ class GUI(QWidget):
             self.label.setText('Type "play" to start the simulation.\
             \nType coordinates styled {X, Y} to add/remove cell.')
             ...
-
+        elif rle := game.rle(self.input.text()):
+            game.live = rle
+            self.draw()
+            ...
         self.input.clear()
 
     def play(self):
@@ -100,8 +104,7 @@ class GUI(QWidget):
     
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    life = GUI({
-
-    })
+    life = GUI("bo$2bo$3o!")
     life.show()
+
     sys.exit(app.exec_())
