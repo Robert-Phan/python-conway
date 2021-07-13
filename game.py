@@ -55,5 +55,5 @@ def rle(string: str):
 
 
 if __name__ == "__main__":
-    print(rle("FUCK"))
+    print("What are you doing here? This isn't the main file!")
     ...

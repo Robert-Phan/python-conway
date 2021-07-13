@@ -106,5 +106,4 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     life = GUI("bo$2bo$3o")
     life.show()
-
     sys.exit(app.exec_())
