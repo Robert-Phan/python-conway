@@ -8,16 +8,16 @@ import game
 
 class GUI(QWidget):
 
-    def __init__(self, board: Union[set[tuple], str]) -> None:
+    def __init__(self, board: Union[set[tuple], str], w: int = 40, h: int = 40) -> None:
         super().__init__()
         if type(board) == str: board = game.rle(board)
         game.live = set(board)
 
-        self.grid: QGridLayout = self.set_dimensions(42, 42)
+        self.grid: QGridLayout = self.set_dimensions(w, h)
         self.draw()
 
         self.label = QLabel('Type "play" to start the simulation. \
-        \nType coordinates styled {X, Y} to add/remove cell.')
+        \nType {X, Y} coordinates or RLE to add/remove cell.')
         self.label.setFont(QFont("Roboto", pointSize=10))
         self.label.setStyleSheet("background-color: black; color: white")
 
@@ -78,7 +78,7 @@ class GUI(QWidget):
             self.generations = 0
             self.draw()
             self.label.setText('Type "play" to start the simulation.\
-            \nType coordinates styled {X, Y} to add/remove cell.')
+            \nType {X, Y} coordinates or RLE to add/remove cell.')
             ...
         elif rle := game.rle(self.input.text()):
             game.live = rle
@@ -104,7 +104,7 @@ class GUI(QWidget):
     
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    life = GUI("bo$2bo$3o!")
+    life = GUI("bo$2bo$3o")
     life.show()
 
     sys.exit(app.exec_())
