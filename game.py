@@ -32,28 +32,26 @@ def update():
 
 import re
 def rle(string: str):
-    g = re.findall(r"\d*b|\d*o|\$", string)
+    g = re.findall(r"\d*b|\d*o|\d*\$", string)
     res: set[tuple] = set()
     x, y = 0, 0
+
     for sect in g:
+        tag = re.search("b|o|\$", sect).string
+        number = int(re.search("\d+", sect).group(0)) if re.search("\d+", sect) else 1
+
         if "b" in sect:
-            t = [x for x in re.findall(r"\d*|b", sect) if x != ""]
-            number = int(t[0]) if len(t) == 2 else 1
-            for _ in range(number):
-                x += 1
-                ...
+            x += number
         elif "o" in sect:
-            t = [x for x in re.findall(r"\d*|o", sect) if x != ""]
-            number = int(t[0]) if len(t) == 2 else 1
             for _ in range(number):
                 res.add((x, y))
                 x += 1
-        else:
+        elif "$" in sect:
             x = 0
-            y += 1
+            y += number
     return res
 
 
 if __name__ == "__main__":
-    print("What are you doing here? This isn't the main file!")
+    print(rle("bo$2bo$3o"))
     ...
